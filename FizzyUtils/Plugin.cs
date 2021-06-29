@@ -16,7 +16,7 @@ namespace FizzyUtils {
             Instance = this;
             Log = logger;
 
-            Utils.usageTracker = new UsageTracker("127.0.0.1");
+            Utils.usageTracker = new UsageTracker("fizzyutils.fizzyapple12.com");
             usageTrackerUser = Utils.usageTracker.AddUser(Name);
         }
 
