@@ -16,10 +16,11 @@ namespace FizzyUtils {
 
         private List<UsageTrackerUser> usageTrackerUsers = new List<UsageTrackerUser>();
 
-        internal UsageTracker(string url) {
+        internal UsageTracker(string url, bool secure) {
             this.url = url;
 
-            webSocket = new WebSocket($"ws://{url}/usagetracker");
+            webSocket = new WebSocket($"{(secure ? "wss" : "ws")}://{url}/usagetracker");
+            webSocket.Log.Level = LogLevel.Info;
             webSocket.OnMessage += OnMessage;
             webSocket.OnClose += OnClose;
             webSocket.ConnectAsync();
@@ -31,8 +32,6 @@ namespace FizzyUtils {
 
         private void OnMessage(object sender, MessageEventArgs e) {
             if (!e.IsText) return;
-
-            Console.WriteLine(e.Data);
 
             StringBuilder stringBuilder = new StringBuilder();
             StringWriter stringWriter = new StringWriter(stringBuilder);
