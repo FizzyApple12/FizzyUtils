@@ -19,6 +19,8 @@ namespace FizzyUtils {
         internal UsageTracker(string url, bool secure) {
             this.url = url;
 
+            if (!Plugin.track) return;
+
             webSocket = new WebSocket($"{(secure ? "wss" : "ws")}://{url}/usagetracker");
             webSocket.Log.Level = LogLevel.Info;
             webSocket.OnMessage += OnMessage;
