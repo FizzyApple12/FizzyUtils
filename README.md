@@ -18,6 +18,7 @@ do note: All of the data recorded is 100% anonymous with no tracking data what s
 ## What libraries or other plugins does it need?
 
  * BSIPA
+ * websocket-sharp
 
 <br/>
 
