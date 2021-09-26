@@ -3,28 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WebSocketSharp;
+using FizzyUtils.WebSockets;
 
 namespace FizzyUtils {
     public class LeaderBoarder {
-        private string url;
+        private Uri uri;
 
         private WebSocket webSocket = null;
 
         private bool reconnect = true;
 
         internal LeaderBoarder(string url, bool secure) {
-            this.url = url;
+            this.uri = new Uri($"{(secure ? "wss" : "ws")}://{url}/leaderboards");
 
-            webSocket = new WebSocket($"{(secure ? "wss" : "ws")}://{url}/leaderboards");
-            webSocket.Log.Level = LogLevel.Info;
+            webSocket = new WebSocket(this.uri);
             webSocket.OnMessage += OnMessage;
             webSocket.OnClose += OnClose;
-            webSocket.ConnectAsync();
+            webSocket.Connect();
         }
 
         private void OnClose(object sender, CloseEventArgs e) {
-            if (reconnect) webSocket.ConnectAsync();
+            if (reconnect) webSocket.Connect();
         }
 
         private void OnMessage(object sender, MessageEventArgs e) {
@@ -33,7 +32,7 @@ namespace FizzyUtils {
 
         internal void Stop() {
             reconnect = false;
-            webSocket.Close();
+            webSocket.Disconnect(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, "Going away");
         }
     }
 }

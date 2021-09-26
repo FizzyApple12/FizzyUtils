@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using WebSocketSharp;
+using System;
 using System.Text;
 using Newtonsoft.Json;
 using System.IO;
+using System.Threading;
+using FizzyUtils.WebSockets;
 
 namespace FizzyUtils {
     public class UsageTracker {
-        private string url;
+        private Uri uri;
 
         private WebSocket webSocket = null;
 
@@ -17,19 +18,18 @@ namespace FizzyUtils {
         private List<UsageTrackerUser> usageTrackerUsers = new List<UsageTrackerUser>();
 
         internal UsageTracker(string url, bool secure) {
-            this.url = url;
+            this.uri = new Uri($"{(secure ? "wss" : "ws")}://{url}/usagetracker");
 
             if (!Plugin.track) return;
 
-            webSocket = new WebSocket($"{(secure ? "wss" : "ws")}://{url}/usagetracker");
-            webSocket.Log.Level = LogLevel.Info;
+            webSocket = new WebSocket(this.uri);
             webSocket.OnMessage += OnMessage;
             webSocket.OnClose += OnClose;
-            webSocket.ConnectAsync();
+            webSocket.Connect();
         }
 
         private void OnClose(object sender, CloseEventArgs e) {
-            if (reconnect) webSocket.ConnectAsync();
+            if (reconnect) webSocket.Connect();
         }
 
         private void OnMessage(object sender, MessageEventArgs e) {
@@ -54,7 +54,7 @@ namespace FizzyUtils {
             writer.WriteEnd();
             writer.WriteEndObject();
 
-            webSocket.SendAsync(stringBuilder.ToString(), (bool completed) => { });
+            webSocket.Send(stringBuilder.ToString(), System.Net.WebSockets.WebSocketMessageType.Text);
         }
 
         public UsageTrackerUser AddUser(string modName) {
@@ -76,7 +76,7 @@ namespace FizzyUtils {
 
         internal void Stop() {
             reconnect = false;
-            webSocket.Close();
+            webSocket.Disconnect(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, "Going away");
         } 
 
         public class UsageTrackerUser {
