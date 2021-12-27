@@ -5,6 +5,8 @@
     <br/>
 </div>
 
+This Mod is now depreciated and will no longer recieve support.
+
 ## What is this?
 
 FizzyUtils is a collection of utilities I use for my mods. This includes: 
